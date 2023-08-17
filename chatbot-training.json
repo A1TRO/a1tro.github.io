@@ -1,0 +1,35 @@
+[
+    {
+      "userMessage": "hello",
+      "aiResponse": "Hello! How can I assist you?"
+    },
+    {
+      "userMessage": "help",
+      "aiResponse": "I'm here to help! Feel free to ask any questions."
+    },
+    {
+      "userMessage": "name",
+      "aiResponse": "I'm a simple chatbot. You can call me ChatBot."
+    },
+    {
+      "userMessage": "bye",
+      "aiResponse": "Goodbye! Have a great day."
+    },
+    {
+      "userMessage": ["how are you", "how's it going"],
+      "aiResponse": "I'm just a chatbot, but I'm here to assist you!"
+    },
+    {
+      "userMessage": ["tell me a joke", "joke"],
+      "aiResponse": "Sure! Why don't scientists trust atoms? Because they make up everything!"
+    },
+    {
+      "userMessage": ["weather", "how's the weather"],
+      "aiResponse": "I'm afraid I can't provide real-time weather updates, but I hope it's nice wherever you are!"
+    },
+    {
+      "userMessage": ["thanks", "thank you"],
+      "aiResponse": "You're welcome! If you need more help, just ask."
+    }
+  ]
+  

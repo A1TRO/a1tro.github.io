@@ -7,6 +7,8 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+
   <style>
     body {
       background-color: #f6f8fa;
@@ -76,6 +78,123 @@
       border-radius: 8px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
+   /* Style for Chat Tab Button */
+   .chat-tab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .chat-tab button {
+    padding: 10px 20px;
+    background-color: #66ccff;
+    color: #252525;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .chat-tab button:hover {
+    background-color: #3388cc;
+  }
+
+  .chat-container {
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    width: 300px;
+    transform: translateX(100%);
+    transition: transform 0.3s;
+    z-index: 1000;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevents box-shadow from being clipped */
+  }
+
+  .chat-open {
+    transform: translateX(0);
+  }
+
+  /* Style for Chat Header */
+  .chat-header {
+    background-color: #66ccff;
+    color: #252525;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+  }
+
+  .chat-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .chat-header button {
+    background-color: transparent;
+    border: none;
+    color: #252525;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  /* Style for Chat Content */
+  .chat-content {
+    background-color: #f6f8fa;
+    padding: 10px 20px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* Style for Chat Input */
+  .chat-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f6f8fa;
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .chat-input button {
+    background-color: #66ccff;
+    color: #252525;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .chat-input button:hover {
+    background-color: #3388cc;
+  }
+
+  /* Style for Timestamps */
+.message-timestamp {
+  display: block;
+  font-size: 12px;
+  color: #888888;
+  margin-bottom: 2px;
+}
+
+/* ... (your existing CSS) ... */
+
+/* Style for Simulated AI Name */
+.ai-message::before {
+  content: "ChatBot:";
+  font-weight: bold;
+  color: #ff9900;
+}
   </style>
 </head>
 <body>
@@ -147,8 +266,29 @@
             <span>LinkedIn Profile</span>
           </a>
         </div>
+        
+        <!-- Chat Tab Button -->
+        <div class="chat-tab">
+          <button id="open-chat-button">Chat</button>
+        </div>
       </div>
     </div>
+<!-- Chat Widget Container -->
+
+    <div class="chat-container">
+      <div class="chat-header">
+        <h2><i class="fas fa-comments"></i> Chat with us</h2>
+        <button id="close-chat-button">&times;</button>
+      </div>
+      <div class="chat-content">
+        <!-- Messages will be displayed here -->
+      </div>
+      <div class="chat-input">
+        <input type="text" placeholder="Type your message...">
+        <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+
     <footer class="footer">
       <div class="content has-text-centered">
         <p>&copy; <span id="current-year"></span> [Hosie J]. All rights reserved.</p>
@@ -289,7 +429,104 @@
     currentYearElement.textContent = currentYear;
     })();
 
+
+    const chatContainer = document.querySelector('.chat-container');
+  const openChatButton = document.getElementById('open-chat-button');
+  const closeChatButton = document.getElementById('close-chat-button');
+
+  openChatButton.addEventListener('click', () => {
+    chatContainer.classList.add('chat-open');
+  });
+
+  closeChatButton.addEventListener('click', () => {
+    chatContainer.classList.remove('chat-open');
+  });
+
     
   </script>
+
+<script>
+  // Select relevant elements
+  const chatContent = document.querySelector('.chat-content');
+  const chatInput = document.querySelector('.chat-input input');
+  const sendButton = document.querySelector('.chat-input button');
+
+  // Function to add a message to the chat content
+  function addMessage(message, isUser) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+    
+    // Add timestamp
+    const timestampSpan = document.createElement('span');
+    timestampSpan.classList.add('message-timestamp');
+    timestampSpan.textContent = getCurrentTimestamp();
+    
+    messageDiv.appendChild(timestampSpan);
+    messageDiv.appendChild(document.createTextNode(message));
+    
+    chatContent.appendChild(messageDiv);
+  }
+
+    // Function to get current timestamp (HH:MM)
+    function getCurrentTimestamp() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  const chatHistory = []; // To store chat history for learning
+  const jsonData = require('./chatbot-training.json');
+
+
+// Function to simulate AI response using trained JSON data
+function simulateAIResponse(userMessage) {
+  const lowerCaseUserMessage = userMessage.toLowerCase();
+  let aiResponse = jsonData.find(entry => entry.userMessage === lowerCaseUserMessage)?.aiResponse;
+
+  if (!aiResponse) {
+    aiResponse = "I'm sorry, I don't have a response for that.";
+  }
+
+  chatHistory.push({ userMessage, aiResponse }); // Store the interaction
+
+  addMessage(aiResponse, false);
+}
+
+// Function to handle user sending a message
+function handleSendMessage() {
+  const userMessage = chatInput.value.trim();
+  if (userMessage !== '') {
+    addMessage(userMessage, true);
+    simulateAIResponse(userMessage);
+    chatInput.value = '';
+  }
+}
+
+// Event listener for send button click
+sendButton.addEventListener('click', handleSendMessage);
+
+// Event listener for pressing Enter in the input field
+chatInput.addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    handleSendMessage();
+  }
+});
+
+// Function to print chat history (for demonstration)
+function printChatHistory() {
+  chatHistory.forEach(entry => {
+    console.log(`User: ${entry.userMessage}`);
+    console.log(`AI: ${entry.aiResponse}`);
+    console.log('---');
+  });
+}
+
+  setTimeout(() => {
+    simulateAIResponse(''); // Empty message simulates initial greeting
+  }, 1000);
+</script>
+
 </body>
 </html>
